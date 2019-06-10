@@ -1,1 +1,1 @@
-php-fpm
+Custom php-fpm alpine build used for the php web services at Einfach Gaming.
