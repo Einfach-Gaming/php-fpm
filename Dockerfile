@@ -1,12 +1,23 @@
-FROM php:7.2-fpm-alpine
+FROM php:7.4-fpm-alpine
 
+# Install required packages.
 RUN apk add --update --no-cache \
     freetype-dev \
     libjpeg-turbo-dev \
     libpng-dev \
-    libzip-dev
+    libzip-dev \
+    autoconf \
+    g++ \
+    make
 
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-png-dir=/usr/include/ --with-jpeg-dir=/usr/include/
-RUN docker-php-ext-configure zip --with-libzip
+# Install PHP extensions.
+RUN docker-php-ext-install pdo_mysql gd bcmath mysqli zip exif
 
-RUN docker-php-ext-install pdo_mysql gd bcmath mysqli zip
+# Install PHP Redis.
+RUN docker-php-source extract && \
+    pecl install redis && \
+    docker-php-ext-enable redis && \
+    docker-php-source delete
+
+# Remove packages only required for building.
+RUN apk del g++ make
