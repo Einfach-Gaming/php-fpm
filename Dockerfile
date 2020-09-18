@@ -10,6 +10,9 @@ RUN apk add --update --no-cache \
     g++ \
     make
 
+# Configure gd to support jpeg.
+RUN docker-php-ext-configure gd --with-jpeg
+
 # Install PHP extensions.
 RUN docker-php-ext-install pdo_mysql gd bcmath mysqli zip exif
 
