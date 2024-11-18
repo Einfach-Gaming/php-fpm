@@ -36,5 +36,5 @@ jobs:
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
           tags: >-
-            ghcr.io/Einfach-Gaming/php-fpm:${{ env.PHP_VERSION }}
+            ghcr.io/einfach-gaming/php-fpm:${{ env.PHP_VERSION }}
 
