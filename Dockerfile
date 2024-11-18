@@ -1,26 +1,9 @@
-FROM php:7.4-fpm-alpine
+ARG PHP_VERSION=8.1
 
-# Install required packages.
-RUN apk add --update --no-cache \
-    freetype-dev \
-    libjpeg-turbo-dev \
-    libpng-dev \
-    libzip-dev \
-    autoconf \
-    g++ \
-    make
+FROM php:${PHP_VERSION}-fpm
 
-# Configure gd to support jpeg.
-RUN docker-php-ext-configure gd --with-jpeg
+ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
-# Install PHP extensions.
-RUN docker-php-ext-install pdo_mysql gd bcmath mysqli zip exif
-
-# Install PHP Redis.
-RUN docker-php-source extract && \
-    pecl install redis && \
-    docker-php-ext-enable redis && \
-    docker-php-source delete
-
-# Remove packages only required for building.
-RUN apk del g++ make
+# Install required PHP extensions
+# https://manual.woltlab.com/en/requirements/
+RUN install-php-extensions ctype dom exif gmp intl libxml mbstring openssl pdo pdo_mysql zlib imagick
