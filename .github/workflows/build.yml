@@ -7,9 +7,10 @@ on:
   push:
     branches:
       - main
+      - gextension
 
 env:
-  PHP_VERSION: "8.3"
+  PHP_VERSION: "7.4"
 
 jobs:
   build-and-deploy:
