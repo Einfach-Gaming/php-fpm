@@ -6,4 +6,4 @@ ADD --chmod=0755 https://github.com/mlocati/docker-php-extension-installer/relea
 
 # Install required PHP extensions
 # https://manual.woltlab.com/en/requirements/
-RUN install-php-extensions ctype dom exif gmp intl libxml mbstring openssl pdo pdo_mysql zlib gd opcache
+RUN install-php-extensions ctype dom exif gmp intl libxml mbstring openssl pdo pdo_mysql mysqli zlib gd opcache
