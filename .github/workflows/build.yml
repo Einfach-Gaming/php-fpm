@@ -10,17 +10,32 @@ on:
 
 env:
   PHP_VERSION: "8.3"
+  IMAGE_NAME: ghcr.io/einfach-gaming/php-fpm
 
 jobs:
-  build-and-deploy:
-    name: Build and push Docker image
-    runs-on: ubuntu-latest
+  build:
+    name: Build platform-specific Docker image
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: linux/amd64
+            runner: ubuntu-24-amd64
+          - platform: linux/arm64
+            runner: ubuntu-24-arm64
+    runs-on: ${{ matrix.runner }}
+    permissions:
+      contents: read
+      packages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+        
+      - name: Prepare
+        run: |
+          platform=${{ matrix.platform }}
+          # Create platform pair for artifact naming
+          echo "PLATFORM_PAIR=${platform//\//-}" >> $GITHUB_ENV
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -32,12 +47,64 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build Docker image and push by digest
+        id: build
         uses: docker/build-push-action@v6
         with:
-          push: true
+          platforms: ${{ matrix.platform }}
           build-args: |
             PHP_VERSION=${{ env.PHP_VERSION }}
-          tags: ghcr.io/einfach-gaming/php-fpm:${{ env.PHP_VERSION }}
-          platforms: linux/amd64,linux/arm64
+          outputs: type=image,push-by-digest=true,name-canonical=true,push=true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ env.PLATFORM_PAIR }}
+          path: ${{ runner.temp }}/digests/*
+          if-no-files-found: error
+          retention-days: 1
+
+  merge:
+    name: Merge multi-architecture image
+    runs-on: ubuntu-latest
+    needs:
+      - build
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
+          merge-multiple: true
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Create manifest list and push
+        working-directory: ${{ runner.temp }}/digests
+        run: |
+          docker buildx imagetools create -t ${{ env.IMAGE_NAME }}:${{ env.PHP_VERSION }} \
+            $(printf '${{ env.IMAGE_NAME }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ env.IMAGE_NAME }}:${{ env.PHP_VERSION }}
 
