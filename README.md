@@ -17,7 +17,7 @@ Images are published to `ghcr.io/einfach-gaming/php-fpm` for `linux/amd64` and `
 |---|---|---|
 | `<minor>` | `8.3` | Moving, always the latest build of that PHP minor version |
 | `<patch>` | `8.3.27` | Moving, latest build of that PHP patch version |
-| `<patch>-<date>-<sha>` | `8.3.27-20261022-0aa3171` | Immutable, use this (or the digest) in deployments |
+| `<patch>-<date>-<sha>-<run-id>-<run-attempt>` | `8.3.27-20261022-0aa3171-39724048089-1` | Immutable, use this (or the digest) in deployments |
 
 PHP `8.3` is used for WoltLab Suite 6.1 (PHP 8.4 requires WoltLab Suite 6.2+). PHP `8.4` is available for other apps.
 

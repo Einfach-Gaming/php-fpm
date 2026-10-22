@@ -88,6 +88,7 @@ jobs:
           output: trivy-results.sarif
           ignore-unfixed: true
           severity: CRITICAL,HIGH
+          limit-severities-for-sarif: true
 
       - name: Upload scan results
         if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
@@ -106,7 +107,7 @@ jobs:
           tags: |
             type=raw,value=${{ matrix.php }}
             type=raw,value=${{ steps.php.outputs.version }}
-            type=raw,value=${{ steps.php.outputs.version }}-{{date 'YYYYMMDD'}}-{{sha}}
+            type=raw,value=${{ steps.php.outputs.version }}-{{date 'YYYYMMDD'}}-{{sha}}-${{ github.run_id }}-${{ github.run_attempt }}
           labels: |
             org.opencontainers.image.title=php-fpm
             org.opencontainers.image.description=Hardened php-fpm image for WoltLab Suite and other PHP apps at Einfach Gaming
