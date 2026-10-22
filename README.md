@@ -21,7 +21,7 @@ Images are published to `ghcr.io/einfach-gaming/php-fpm` for `linux/amd64` and `
 
 PHP `8.3` is used for WoltLab Suite 6.1 (PHP 8.4 requires WoltLab Suite 6.2+). PHP `8.4` is available for other apps.
 
-Images are rebuilt daily without cache to pick up PHP patch releases and Debian security updates, and on every push to `main`. CI tests FPM under UID/GID `1001:1001` with a read-only root filesystem and writable `/tmp`, validates FastCGI requests and configuration overrides, and blocks publishing when fixable HIGH or CRITICAL vulnerabilities are found.
+Images are rebuilt daily without cache to pick up PHP patch releases and Debian security updates, and on every push to `main`. CI tests FPM under UID/GID `1001:1001` with a read-only root filesystem and writable `/tmp`, validates FastCGI requests and configuration overrides, and reports fixable HIGH or CRITICAL vulnerabilities without blocking publishing.
 Every image ships with SBOM and provenance attestations and is signed with [cosign](https://github.com/sigstore/cosign) (keyless):
 
 ```sh
