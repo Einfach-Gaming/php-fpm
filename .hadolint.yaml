@@ -1,0 +1,3 @@
+ignored:
+  # Packages are intentionally unpinned so every rebuild picks up the latest Debian security updates.
+  - DL3008
