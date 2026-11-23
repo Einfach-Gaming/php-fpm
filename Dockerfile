@@ -4,7 +4,7 @@
 ARG PHP_VERSION=8.3
 ARG DEBIAN_RELEASE=bookworm
 
-FROM mlocati/php-extension-installer:2.13.2 AS php-extension-installer
+FROM mlocati/php-extension-installer:2.13.3 AS php-extension-installer
 
 FROM php:${PHP_VERSION}-fpm-${DEBIAN_RELEASE}
 
